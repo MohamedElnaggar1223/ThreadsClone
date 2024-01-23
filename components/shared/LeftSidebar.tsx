@@ -11,6 +11,8 @@ export default function LeftSidebar()
     const pathname = usePathname()
     const { userId } = useAuth()
 
+    router.prefetch(`/profile/${userId}`)
+
     return (
         <section className='custom-scrollbar leftsidebar'>
             <div className="flex w-full flex-1 flex-col gap-6 px-6">
@@ -19,11 +21,10 @@ export default function LeftSidebar()
                         const isActive = (pathname.includes(link.route) && link.route.length > 1) || (pathname === link.route)
                         return (
                             <Link
-                                key={link.route} 
-                                prefetch={true}
+                                key={link.route}
                                 href={link.route === '/profile' ? `/profile/${userId}` : link.route}
                                 className={`leftsidebar_link ${isActive && 'bg-primary-500'}`}
-                                >
+                            >
                                 <Image
                                     src={link.imgURL}
                                     alt={link.label}
