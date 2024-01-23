@@ -14,8 +14,6 @@ export default async function ThreadsTab({ currentUserId, accountId, accountType
 
     if(!result) redirect('/')
 
-    console.log(result.threads[0].author)
-
     return (
         <section className='mt-9 flex flex-col gap-10'>
             {result.threads.map((thread) => (
