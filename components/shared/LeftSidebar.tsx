@@ -20,6 +20,7 @@ export default function LeftSidebar()
                         return (
                             <Link
                                 key={link.route} 
+                                prefetch={true}
                                 href={link.route === '/profile' ? `/profile/${userId}` : link.route}
                                 className={`leftsidebar_link ${isActive && 'bg-primary-500'}`}
                                 >
