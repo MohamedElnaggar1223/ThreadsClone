@@ -3,12 +3,13 @@ import Link from "next/link";
 import  { sidebarLinks } from '@/constants'
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { SignedIn, SignOutButton } from "@clerk/nextjs";
+import { SignedIn, SignOutButton, useAuth } from "@clerk/nextjs";
 
 export default function LeftSidebar() 
 {
     const router = useRouter()
     const pathname = usePathname()
+    const { userId } = useAuth()
 
     return (
         <section className='custom-scrollbar leftsidebar'>
@@ -19,7 +20,7 @@ export default function LeftSidebar()
                         return (
                             <Link
                                 key={link.route} 
-                                href={link.route} 
+                                href={link.route === '/profile' ? `/profile/${userId}` : link.route}
                                 className={`leftsidebar_link ${isActive && 'bg-primary-500'}`}
                                 >
                                 <Image

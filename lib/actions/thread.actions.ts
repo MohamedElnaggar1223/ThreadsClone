@@ -36,7 +36,7 @@ export async function createThread({ text, author, communityId, path }: CreateTh
     }
 }
 
-type ThreadProps = {
+export type ThreadProps = {
     _id: string,
     id: string,
     text: string,

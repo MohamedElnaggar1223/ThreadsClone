@@ -59,7 +59,7 @@ export default function ThreadCard({ id, currentUserId, content, author, created
 
                         <p className='mt-2 text-small-regular text-light-2'>{content}</p>
 
-                        <div className="mt-5 flex flex-col gap-3">
+                        <div className={cn("mt-5 flex flex-col gap-3", isComment && 'mb-10')}>
                             <div className="flex flex-row gap-3.5">
                                 <ThreadLike id={id.toString()} userId={currentUserObjectId.toString()} likes={transformedLikes} />
                                 <Link href={`/thread/${id}`}>

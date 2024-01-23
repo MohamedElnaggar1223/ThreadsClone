@@ -36,8 +36,6 @@ export default function Comment({ threadId, currentUserImg, currentUserId }: Pro
             path: pathname,
             threadId: threadId
         })
-
-        router.push('/')
     }
 
     return (

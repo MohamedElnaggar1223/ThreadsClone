@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache"
 import UserThread from "../models/userThreads.model"
 import { connectToDB } from "../mongoose"
+import { ThreadProps } from "./thread.actions"
+import Thread from "../models/thread.model"
 
 type UpdateUser = {
     userId: string, 
@@ -70,5 +72,42 @@ export async function fetchUser(userId: string): Promise<UserProps>
     catch(e: any)
     {
         throw new Error(`Failed to fetch user: ${e.message}`)
+    }
+}
+
+type UserThreadsProps = {
+    _id: string,
+    id: string,
+    name: string,
+    image: string, 
+    threads: ThreadProps[]
+}
+
+export async function fetchUserPosts(userId: string): Promise<UserThreadsProps>
+{
+    try
+    {
+        connectToDB()
+
+        // TODO: Populate Communities
+        const threads = await UserThread.findOne({ id: userId }).populate({
+            path: 'threads',
+            model: Thread,
+            populate: {
+                path: 'children',
+                model: Thread,
+                populate: {
+                    path: 'author',
+                    model: UserThread,
+                    select: "_id id name image"
+                }
+            }
+        }) as UserThreadsProps
+
+        return threads
+    }
+    catch(e: any)
+    {
+        throw new Error(`Failed to fetch user posts: ${e.message}`)
     }
 }
