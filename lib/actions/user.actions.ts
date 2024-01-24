@@ -5,6 +5,8 @@ import UserThread from "../models/userThreads.model"
 import { connectToDB } from "../mongoose"
 import { ThreadProps } from "./thread.actions"
 import Thread from "../models/thread.model"
+import { SortOrder } from "mongoose"
+import { FilterQuery } from "mongoose"
 
 type UpdateUser = {
     userId: string, 
@@ -109,5 +111,87 @@ export async function fetchUserPosts(userId: string): Promise<UserThreadsProps>
     catch(e: any)
     {
         throw new Error(`Failed to fetch user posts: ${e.message}`)
+    }
+}
+
+type UsersFetched = {
+    users: UserProps[],
+    isNext: boolean
+}
+
+export async function fetchUsers({ userId, searchString = "", pageNumber = 1, pageSize = 20, sortBy = 'desc' }: { userId: string, searchString?: string, pageNumber?: number, pageSize?: number, sortBy?: SortOrder }): Promise<UsersFetched>
+{
+    try
+    {
+        connectToDB()
+
+        const skipAmout = (pageNumber - 1) * pageSize
+
+        const regex = new RegExp(searchString, 'i')
+
+        const query: FilterQuery<typeof UserThread> = {
+            id: { $ne: userId },
+        }
+
+        if(searchString.trim() !== "")
+        {
+            query.$or = [
+                {
+                    username: { $regex: regex}
+                },
+                {
+                    name: { $regex: regex}
+                }
+            ]
+        }
+
+        const sortOptions = { createdAt: sortBy }
+
+        const usersQuery = UserThread.find(query)
+            .sort(sortOptions)
+            .skip(skipAmout)
+            .limit(pageSize)
+
+        const totalUsersQuery = await UserThread.countDocuments(query)
+
+        const users = await usersQuery.exec()
+
+        const isNext = totalUsersQuery > (pageNumber * pageSize)
+
+        return { users, isNext }
+    }
+    catch(e: any)
+    {
+        throw new Error(`Failed to fetch users: ${e.message}`)
+    }
+}
+
+export async function getActivity(userId: string): Promise<ThreadProps[]>
+{
+    try
+    {
+        connectToDB()
+
+        const userThreads = await Thread.find({ author: userId })
+
+        const childThreadsIds = userThreads.reduce((acc, userThread) => {
+            return acc.concat(userThread.children)
+        }, [])
+
+        const replies = await Thread.find({ 
+            _id: { $in: childThreadsIds }, 
+            author: { $ne: userId } 
+        })
+        .populate({
+            path: 'author',
+            model: UserThread,
+            select: "_id name image"
+        }) as ThreadProps[]
+
+        return replies
+    }
+    catch(e: any)
+    {
+        throw new Error(`Failed to fetch activity: ${e.message}`)
     }
 }

@@ -1,6 +1,6 @@
 "use client"
 import { sidebarLinks } from "@/constants";
-import { SignedIn, SignOutButton } from "@clerk/nextjs";
+import { SignedIn, SignOutButton, useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -10,6 +10,8 @@ export default function Bottombar()
     const router = useRouter()
     const pathname = usePathname()
 
+    const { userId } = useAuth()
+
     return (
         <section className='bottombar'>
             <div className="bottombar_container">
@@ -18,7 +20,7 @@ export default function Bottombar()
                     return (
                         <Link
                             key={link.route} 
-                            href={link.route} 
+                            href={link.route === '/profile' ? `/profile/${userId}` : link.route}
                             className={`bottombar_link ${isActive && 'bg-primary-500'}`}
                             >
                             <Image
