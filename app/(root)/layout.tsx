@@ -1,12 +1,13 @@
 import { Inter } from 'next/font/google'
 import '../globals.css'
-import { ClerkProvider } from '@clerk/nextjs'
+import { ClerkProvider, SignedIn, currentUser } from '@clerk/nextjs'
 import { dark } from "@clerk/themes";
 import Bottombar from '@/components/shared/Bottombar';
 import LeftSidebar from '@/components/shared/LeftSidebar';
 import RightSidebar from '@/components/shared/RightSidebar';
 import Topbar from '@/components/shared/Topbar';
 import { Suspense } from 'react';
+import { redirect } from 'next/navigation';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -15,11 +16,15 @@ export const metadata = {
   description: 'A Next.js 14 Meta Threads Application',
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const user = await currentUser()
+
+  if(!user) redirect('/sign-in')
+  else
   return (
     <ClerkProvider
       appearance={{
@@ -28,23 +33,25 @@ export default function RootLayout({
     >
       <html lang="en">
         <body className={inter.className}>
-          <Topbar />
+          <SignedIn>
+            <Topbar />
 
-          <main className='flex flex-row'>
-            <LeftSidebar />
+            <main className='flex flex-row'>
+              <LeftSidebar />
 
-            <section className='main-container'>
-              <div className="w-full max-w-4xl">
-                <Suspense>
-                  {children}
-                </Suspense>
-              </div>
-            </section>
+              <section className='main-container'>
+                <div className="w-full max-w-4xl">
+                  <Suspense>
+                    {children}
+                  </Suspense>
+                </div>
+              </section>
 
-            <RightSidebar />
-          </main>
+              <RightSidebar />
+            </main>
 
-          <Bottombar />
+            <Bottombar />
+          </SignedIn>
         </body>
       </html>
     </ClerkProvider>
